@@ -1,7 +1,7 @@
 import sqlite3
 from config import DATABASE
 
-skills = [ (_,) for _ in (['Python',  'SQL', 'API', 'Telegram'])]
+skills = [ (_,) for _ in (['Python',  'SQL', 'API', 'Telegram', 'FLASK', 'AI', 'JavaScript', 'HTML', 'CSS'])]
 statuses = [ (_,) for _ in (['На этапе проектирования.', 'В процессе разработки.', 'Разработан. Готов к использованию.', 'Обновлен.', 'Завершен. Не поддерживается.'])]
 
 class DB_Manager:
@@ -34,6 +34,24 @@ class DB_Manager:
             con.execute('''CREATE TABLE status(
                         status_id INTEGER PRIMARY KEY,
                         status_name TEXT NOT NULL)''')
+
+            # Проверяем и добавляем столбцы, если их нет
+            cursor = con.cursor()
+            cursor.execute("PRAGMA table_info(projects)")
+            columns = [info[1] for info in cursor.fetchall()]
+
+            if 'img_url' not in columns:
+                cursor.execute("ALTER TABLE projects ADD COLUMN img_url TEXT")
+                print("Столбец 'img_url' добавлен в таблицу 'projects'.")
+            else:
+                print("Столбец 'img_url' уже существует в таблице 'projects'.")
+
+            if 'img_blob' not in columns:
+                cursor.execute("ALTER TABLE projects ADD COLUMN img_blob BLOB")
+                print("Столбец 'img_blob' добавлен в таблицу 'projects'.")
+            else:
+                print("Столбец 'img_blob' уже существует в таблице 'projects'.")
+
             con.commit()
 
     def __executemany(self, sql, data):
@@ -136,6 +154,16 @@ WHERE project_name=? AND user_id=?
                   WHERE project_name = ? AND user_id = ?"""
         self.__executemany(sql, [data]) 
 
+    def update_status(self, status_id, new_status_name):
+        sql = "UPDATE status SET status_name = ? WHERE status_id = ?"
+        self.__executemany(sql, [(new_status_name, status_id)])
+        print(f"Статус с id={status_id} обновлён на '{new_status_name}'.")
+
+    def update_skill(self, skill_id, new_skill_name):
+        sql = "UPDATE skills SET skill_name = ? WHERE skill_id = ?"
+        self.__executemany(sql, [(new_skill_name, skill_id)])
+        print(f"Навык с id={skill_id} обновлён на '{new_skill_name}'.")
+
 
     def delete_project(self, user_id, project_id):
         sql = """DELETE FROM projects 
@@ -148,12 +176,58 @@ WHERE project_name=? AND user_id=?
 """
         self.__executemany(sql, [(skill_id, project_id)])
 
+    def delete_status_by_id(self, status_id):
+        sql = "DELETE FROM status WHERE status_id = ?"
+        self.__executemany(sql, [(status_id,)])
+        print(f"Статус с id={status_id} удалён.")
+
+    def add_skill(self, skill_name):
+        sql = "INSERT INTO skills (skill_name) VALUES (?)"
+        self.__executemany(sql, [(skill_name,)])
+        print(f"Навык '{skill_name}' добавлен.")
+
+    def add_column_if_not_exists(db_path, table_name, column_name, column_type):
+        """
+        Добавляет столбец в таблицу, если он не существует.
+        
+        :param db_path: Путь к базе данных SQLite.
+        :param table_name: Имя таблицы, в которую нужно добавить столбец.
+        :param column_name: Имя столбца, который нужно добавить.
+        :param column_type: Тип данных столбца (например, 'TEXT', 'INTEGER').
+        """
+        if not db_path or not table_name or not column_name or not column_type:
+            raise ValueError("Все параметры должны быть указаны.")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        cursor.execute(f"PRAGMA table_info({table_name})")
+        columns = [info[1] for info in cursor.fetchall()]
+
+        if column_name not in columns:
+            alter_query = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}"
+            cursor.execute(alter_query)
+            print(f"Столбец '{column_name}' добавлен в таблицу '{table_name}'.")
+        else:
+            print(f"Столбец '{column_name}' уже существует в таблице '{table_name}'.")
+
+    def insert_full_project(self, user_id, name, description, url, status_id, img_url, img_blob):
+        sql = """
+            INSERT INTO projects (
+                user_id, project_name, project_description, url, status_id, img_url, img_blob
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+        self.__executemany(sql, [(user_id, name, description, url, status_id, img_url, img_blob)])
+
+
+         
+
 
 if __name__ == '__main__':
     manager = DB_Manager(DATABASE)
     manager.create_tables()
     manager.default_insert()
-    #manager.insert_project((user_id, project_name, url, status_id))
+    #manager.insert_project([('user_id', 'project_name', 'url', 'status_id')])
     status_id = manager.get_status_id("Разработан. Готов к использованию.")
     manager.insert_project([
         (1, "Телеграм-бот-админ", "Бот для управления чатом." ,"https://github.com/Arsendor/M1L3.git", status_id),
