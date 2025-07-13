@@ -8,5 +8,5 @@ _Ниже Вы можете просмотреть примеры общения
 ![Снимок экрана 2025-07-13 150907](https://github.com/user-attachments/assets/83305fbd-3113-4b31-aa9f-9d4b4b153e95)
 ![Снимок экрана 2025-07-13 150752](https://github.com/user-attachments/assets/c12947f2-07ab-4cc8-8b0c-0db4f1ae4734)
 
-**Перейдите по QR code или по ссылке ниже и испытайте этот продукт!**
+**Перейдите по QR code или ищите бота по имени пользователя ниже и испытайте этот продукт!**
 <img width="948" height="1102" alt="image" src="https://github.com/user-attachments/assets/6d0d20bb-d148-42f5-afc9-0f00edf8ef4c" />
