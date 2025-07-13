@@ -1,2 +1,2 @@
-TOKEN = '8011256569:AAGNVL5tAqdp3a52DdgUSkc6N6k8PYJ2RUc'
+TOKEN = ''
 DATABASE = 'portfolio.db'
