@@ -1,1 +1,2 @@
-A database where you can find information about my work and projects, connected to a Telegram bot.
+**Телграм-бот "Портфолио" _ _
+**База данных, в которой вы можете найти информацию о моей работе и проектах, соединенная с телеграм-ботом.**
